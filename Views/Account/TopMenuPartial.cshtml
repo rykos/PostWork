@@ -1,8 +1,21 @@
 <div>
-    <span class="navbar-text">
-        
-    </span>
-    <a asp-action="Index" asp-controller="Account">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
-    </a>
+@{
+    if(User.Identity.IsAuthenticated)//Logged in
+    {
+        <a asp-action="Index" asp-controller="Account">
+            <span class="navbar-text">
+                @User.Identity.Name
+            </span>
+        </a>
+        <a asp-action="Logout" asp-controller="Account">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+        </a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-controller="Account"> 
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+        </a>
+    }
+}
 </div>

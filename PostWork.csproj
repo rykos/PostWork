@@ -12,6 +12,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="MySql.Data.EntityFrameworkcore" Version="8.0.21" />
+    <PackageReference Include="restsharp" Version="106.11.4" />
   </ItemGroup>
 
 </Project>

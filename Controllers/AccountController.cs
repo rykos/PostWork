@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,19 +11,21 @@ namespace PostWork.Controllers
     public class AccountController : Controller
     {
         private readonly IAccountLogic accountLogic;
-        public AccountController(IAccountLogic accountLogic)
+        private readonly UserManager<IdentityUser> userManager;
+        public AccountController(IAccountLogic accountLogic, UserManager<IdentityUser> userManager)
         {
             this.accountLogic = accountLogic;
+            this.userManager = userManager;
         }
 
         //Default
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login");
             }
-            return View();
+            return View(await this.userManager.GetUserAsync(User));
         }
 
         //Login Page
@@ -35,6 +38,11 @@ namespace PostWork.Controllers
         public IActionResult Register()
         {
             return View();
+        }
+
+        public IActionResult RecoverPassword()
+        {
+            return View("/Views/Account/PasswordRecovery.cshtml");
         }
 
         //Login request
@@ -51,7 +59,15 @@ namespace PostWork.Controllers
             {
                 Console.WriteLine("Login data was invalid");
             }
-            return View();
+            catch (InvalidPasswordException)
+            {
+                Console.WriteLine("Bad password");
+            }
+            catch (UserDoesNotExistException)
+            {
+                Console.WriteLine("User does not exist");
+            }
+            return RedirectToAction("Index");
         }
 
         //Register request
@@ -84,11 +100,11 @@ namespace PostWork.Controllers
 
         //Logout request
         [HttpGet]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            if (!User.Identity.IsAuthenticated)//User is not logged in
+            if (User.Identity.IsAuthenticated)
             {
-                return BadRequest();
+                await this.accountLogic.Logout();
             }
             return RedirectToAction("Index", "Home");
         }

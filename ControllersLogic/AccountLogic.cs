@@ -11,29 +11,40 @@ namespace PostWork.ControllersLogic
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
-        public AccountLogic(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        private readonly RoleManager<IdentityRole> roleManager;
+        public AccountLogic(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.roleManager = roleManager;
         }
 
         public async Task Login(IFormCollection data)
         {
-            try
+            Task<bool> emailValidationTask = this.FieldIsIncorrect(data["email"]);
+            Task<bool> passwordValidationTask = this.FieldIsIncorrect(data["password"]);
+            if (await emailValidationTask)
             {
-                if (data["email"].Count == 0)
-                {
-                    throw new InvalidLoginDataException();
-                }
-                if (data["password"].Count == 0)
-                {
-                    throw new InvalidLoginDataException();
-                }
-                Console.WriteLine($"Email: {data["email"]} Password: {data["password"]}");
+                throw new InvalidLoginDataException();
             }
-            catch
+            if (await passwordValidationTask)
             {
-                throw;
+                throw new InvalidLoginDataException();
+            }
+            IdentityUser user = await this.userManager.FindByEmailAsync(data["email"]);
+            if (user == null)
+            {
+                throw new UserDoesNotExistException();
+            }
+            //this.signInManager.CheckPasswordSignInAsync(user, data["password"], false);
+            SignInResult loginResoult = await this.signInManager.PasswordSignInAsync(user, data["password"], false, false);
+            if (!loginResoult.Succeeded)
+            {
+                throw new InvalidPasswordException();
+            }
+            else
+            {
+                Console.WriteLine("User logged in");
             }
         }
 
@@ -89,6 +100,27 @@ namespace PostWork.ControllersLogic
             }
             return false;
         }
+
+        //If no accounts exist create admin account, ensure that admin role exists
+        public async Task ValidateDatabase()
+        {
+            if (!await this.roleManager.RoleExistsAsync("admin"))//Create admin role if not exists
+            {
+                IdentityRole role = new IdentityRole("admin");
+                await this.roleManager.CreateAsync(role);
+            }
+            Console.WriteLine("Users: " + this.userManager.Users.Count());
+            if (this.userManager.Users.Count() == 0)//If there are no users create admin account
+            {
+                Console.WriteLine("Im in loop");
+                IdentityUser adminIdentity = new IdentityUser("admin")
+                {
+                    Email = "admin@admin.admin"
+                };
+                await this.userManager.CreateAsync(adminIdentity, "Admin11!");
+                await this.userManager.AddToRoleAsync(adminIdentity, "admin");
+            }
+        }
     }
 
     public interface IAccountLogic
@@ -96,5 +128,6 @@ namespace PostWork.ControllersLogic
         Task Login(IFormCollection data);
         Task Logout();
         Task Register(IFormCollection data);
+        Task ValidateDatabase();
     }
 }

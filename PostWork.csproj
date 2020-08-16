@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.7" />
     <PackageReference Include="microsoft.aspnetcore.mvc.razor.runtimecompilation" Version="3.1.7" />
+    <PackageReference Include="microsoft.entityframeworkcore.design" Version="3.1.7">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="MySql.Data.EntityFrameworkcore" Version="8.0.21" />
   </ItemGroup>
 

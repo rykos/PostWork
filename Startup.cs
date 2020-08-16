@@ -5,10 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using PostWork.Data;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.AspNetCore.Identity;
+using PostWork.ControllersLogic;
 
 namespace PostWork
 {
@@ -24,6 +29,22 @@ namespace PostWork
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDistributedMemoryCache();
+
+            services.AddDbContext<UserContext>(options => options.UseMySQL(Configuration.GetConnectionString("Default")));
+
+            services.AddScoped<IAccountLogic, AccountLogic>();
+
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<UserContext>().AddDefaultTokenProviders();
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
+            });
+
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 

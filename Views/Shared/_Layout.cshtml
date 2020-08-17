@@ -11,7 +11,10 @@
     <header>
         <nav class="navbar navbar-light bg-light">
             <div class="container">
-                <a asp-action="Index" asp-controller="Home" class="navbar-brand">PostWork</a>
+                <div>
+                    <a asp-action="Index" asp-controller="Home" class="navbar-brand">PostWork</a>
+                    <a asp-action="Create" asp-controller="Post" class="navbar-text">Create Post</a>
+                </div>
                 @{
                     await Html.RenderPartialAsync("/Views/Account/TopMenuPartial.cshtml");
                 }

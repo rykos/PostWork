@@ -32,8 +32,10 @@ namespace PostWork
             services.AddDistributedMemoryCache();
 
             services.AddDbContext<UserContext>(options => options.UseMySQL(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<PostContext>(options => options.UseMySQL(Configuration.GetConnectionString("Default")));
 
             services.AddScoped<IAccountLogic, AccountLogic>();
+            services.AddScoped<IPostLogic, PostLogic>();
 
             services.AddSession(options =>
             {
@@ -57,7 +59,7 @@ namespace PostWork
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAccountLogic accountLogic)
         {
-            accountLogic.ValidateDatabase();
+            accountLogic.ValidateDatabase();//Ensure admin role and account exists
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

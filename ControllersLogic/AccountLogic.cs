@@ -21,13 +21,11 @@ namespace PostWork.ControllersLogic
 
         public async Task Login(IFormCollection data)
         {
-            Task<bool> emailValidationTask = this.FieldIsIncorrect(data["email"]);
-            Task<bool> passwordValidationTask = this.FieldIsIncorrect(data["password"]);
-            if (await emailValidationTask)
+            if (this.FieldIsIncorrect(data["email"]))
             {
                 throw new InvalidLoginDataException();
             }
-            if (await passwordValidationTask)
+            if (this.FieldIsIncorrect(data["password"]))
             {
                 throw new InvalidLoginDataException();
             }
@@ -55,18 +53,15 @@ namespace PostWork.ControllersLogic
 
         public async Task Register(IFormCollection data)
         {
-            Task<bool> emailValidationTask = this.FieldIsIncorrect(data["email"]);
-            Task<bool> usernameValidationTask = this.FieldIsIncorrect(data["username"]);
-            Task<bool> passwordValidationTask = this.FieldIsIncorrect(data["password"]);
-            if (await emailValidationTask)
+            if (this.FieldIsIncorrect(data["email"]))
             {
                 throw new InvalidLoginDataException();
             }
-            if (await usernameValidationTask)
+            if (this.FieldIsIncorrect(data["username"]))
             {
                 throw new InvalidLoginDataException();
             }
-            if (await passwordValidationTask)
+            if (this.FieldIsIncorrect(data["password"]))
             {
                 throw new InvalidLoginDataException();
             }
@@ -88,7 +83,7 @@ namespace PostWork.ControllersLogic
         }
 
         //Check if field is valid
-        private async Task<bool> FieldIsIncorrect(string value)
+        private bool FieldIsIncorrect(string value)
         {
             if (value == null)
             {

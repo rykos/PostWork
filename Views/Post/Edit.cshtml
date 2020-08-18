@@ -1,0 +1,34 @@
+@model Post
+<div style="width: 40%; margin: auto; margin-top: 5%; margin-bottom: 5%; padding: 2%;" class="border">
+    <form method="POST" asp-action="Edit" enctype="multipart/form-data">
+        <input hidden name="id" id="id" value="@Model.Id"></input>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="@Model.Title">
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea rows="10" type="text" class="form-control" id="description" name="description">@Model.Description</textarea>
+        </div>
+        <div class="form-group">
+            <label>Tags separated by ,</label>
+            <input type="text" class="form-control" id="tags" name="tags" value="@Model.Tags">
+        </div>
+        <div class="form-group">
+            <label>Avatar</label>
+            <input type="file" class="form-control-file" id="avatar" name="avatar">
+        </div>
+        <div class="form-group">
+            <label>Salary</label>
+            <div class="row">
+                <div class="col">
+                    <input type="number" class="form-control" id="salaryMin" name="salaryMin" value="@Model.SalaryMin">
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control" id="salaryMax" name="salaryMax" value="@Model.SalaryMax">
+                </div>
+            </div>
+        </div>
+        <input type="submit" class="form-control btn-success" value="Create">
+    </form>
+</div>

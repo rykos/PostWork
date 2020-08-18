@@ -68,18 +68,12 @@
         return html;
     }
 </script>
-
-<div style="width: 100%; height: 10%; margin-top: 5%;">
-    <center>
-        <input type="text" id="searchBox" class="input-group-text" style="border-radius: 50px;" onkeydown="SearchKeyPress(event)">
-    </center>
-</div>
 <div class="container" id="PostsContainer" style="margin-top: 3%; width: 70%;">
 @{
     if(Model != null)
     {
         foreach(Post post in Model){
-            <a asp-action="Read" asp-route-id="@post.Id">
+            <a asp-action="Edit" asp-route-id="@post.Id">
                 <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
                     <div id="left-side" style="display: flex; width: 70%;">
                         <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">

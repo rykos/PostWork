@@ -2,3 +2,5 @@
 @model IdentityUser
 index
 <p>Viewing @Model.UserName account details</p>
+<a asp-action="My" asp-controller="Posts">My Posts</a>
+<a asp-action="Create" asp-controller="Post" class="navbar-text">Create Post</a>

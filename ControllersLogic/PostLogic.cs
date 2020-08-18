@@ -46,6 +46,36 @@ namespace PostWork.ControllersLogic
             }
         }
 
+        public void EditPost(IFormCollection data)
+        {
+            Post post = this.postContext.Posts.FirstOrDefault(x => x.Id == int.Parse(data["id"]));
+            if (post != default)
+            {
+                this.postContext.Posts.Update(post);
+                post.Title = data["title"];
+                post.Description = data["description"];
+                if (int.TryParse(data["salaryMin"], out int SalaryMin))
+                {
+                    post.SalaryMin = SalaryMin;
+                }
+                if (int.TryParse(data["salaryMax"], out int SalaryMax))
+                {
+                    post.SalaryMax = SalaryMax;
+                }
+                post.Tags = data["tags"];
+                if (data.Files.Count > 0)
+                {
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        data.Files[0].CopyTo(ms);
+                        post.Avatar = ms.ToArray();
+                    }
+                }
+                this.postContext.SaveChanges();
+                Console.WriteLine("Post edited");
+            }
+        }
+
         public Post ReadPost(int id)
         {
             return this.postContext.Posts.FirstOrDefault(x => x.Id == id);
@@ -72,7 +102,36 @@ namespace PostWork.ControllersLogic
                 tasks.Add(task);
             }
             Task.WaitAll(tasks.ToArray());
+            tasks.Clear();
+            foreach (Post post in uniquePosts)//If does not contains all tags, remove from hash
+            {
+                tasks.Add(Task.Run(() =>
+                {
+                    foreach (string tag in tags)
+                    {
+                        if (post.Tags.Contains(tag) == false)
+                        {
+                            lock (uniquePosts)
+                            {
+                                uniquePosts.Remove(post);
+                            }
+                            break;
+                        }
+                    }
+                }));
+            }
+            Task.WaitAll(tasks.ToArray());
             return uniquePosts;
+        }
+
+        public Post[] FindByCreatorId(string id)
+        {
+            return this.postContext.Posts.Where(x => x.CreatorId == id).ToArray();
+        }
+
+        public Post FindById(int id)
+        {
+            return this.postContext.Posts.FirstOrDefault(x => x.Id == id);
         }
 
         //Validates post data
@@ -109,5 +168,8 @@ namespace PostWork.ControllersLogic
         Task<Post> CreatePost(IFormCollection data, string creatorId);
         Post ReadPost(int id);
         Task<IEnumerable<Post>> FindByTags(string[] tags);
+        Post[] FindByCreatorId(string id);
+        Post FindById(int id);
+        void EditPost(IFormCollection data);
     }
 }

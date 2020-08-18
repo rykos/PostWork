@@ -10,6 +10,8 @@ using System.Collections.Generic;
 
 namespace PostWork.Controllers
 {
+    [Route("/{action=Index}")]
+    [Route("/Posts/{action=Index}/{id?}")]
     public class PostController : Controller
     {
         private readonly IPostLogic postLogic;
@@ -24,8 +26,7 @@ namespace PostWork.Controllers
 
         public IActionResult Index()
         {
-            Post[] elements = this.postContext.Posts.Where(x => x.Tags.Contains("linux")).ToArray();
-            return View(elements);
+            return View(this.postContext.Posts.ToArray());
         }
 
         public async Task<IEnumerable<Post>> Find(string query)
@@ -38,35 +39,56 @@ namespace PostWork.Controllers
             return View();
         }
 
+        [Route("/Posts/My")]
+        public IActionResult MyPosts()
+        {
+            return View(postLogic.FindByCreatorId(this.userManager.GetUserId(User)));
+        }
+
         public IActionResult Read(int? id)
         {
             if (id == null)
             {
-                return NotFound();
+                return NotFound(id);
             }
             Post post = this.postLogic.ReadPost((int)id);
             if (post == default)
             {
-                return NotFound();
+                return NotFound(id);
             }
             return View(post);
         }
 
-        public IActionResult Edit(int? id)
+        public IActionResult Edit(int id)
         {
-            if (id == null)
+            Post post = this.postLogic.FindById(id);
+            if (post.CreatorId == this.userManager.GetUserId(User))//User is the creator
             {
-                return NotFound();
+                return View(post);
             }
-            return View();
+            else//Access denied
+            {
+                return Forbid();
+            }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Create(IFormCollection data)
         {
             Post post = await this.postLogic.CreatePost(data, this.userManager.GetUserId(User));
-            return Created($"/Post/Read/{post.Id}", post);
+            return RedirectToAction("Read", new { id = post.Id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(IFormCollection data)
+        {
+            Post post = this.postLogic.FindById((int.Parse(data["id"])));
+            if (post.CreatorId == this.userManager.GetUserId(User))//User is the creator
+            {
+                this.postLogic.EditPost(data);
+                return RedirectToAction("Read", new { id = post.Id });
+            }
+            return Forbid();
         }
     }
 }

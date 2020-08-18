@@ -1,0 +1,111 @@
+@model IEnumerable<Post>
+@using System;
+<style>
+    a {
+        color: inherit; /* blue colors for links too */
+        text-decoration: inherit; /* no underline */
+    }
+    a:hover{
+        color: inherit; /* blue colors for links too */
+        text-decoration: inherit; /* no underline */
+    }
+    .row:hover{
+        transform: scale(1.05);
+        transition: 300ms;
+    }
+    .row:not(:hover){
+        transform: scale(1);
+        transition: 300ms;
+    }
+</style>
+<script>
+    function SearchKeyPress(event){
+        if(event.keyCode == 13){//Enter pressed
+            GetResoults();
+        }
+    }
+    function GetResoults(){
+        var html = "";
+        $.post(`/Post/find?query=${$("#searchBox").val()}`).done(function(data) {
+            for(var i = 0; i < data.length; i++){
+                html += GenerateElementHtml(data[i]);
+            }
+            var x = $("#PostsContainer").html(html);
+        });
+    }
+    function GenerateElementHtml(data){
+          var temp =`<a href="Post/Read/${data["id"]}">
+        <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
+            <div id="left-side" style="display: flex; width: 70%;">
+                <img src="data:image/png;base64,${data["avatar"]}" style="width: 100px; height: 100px;">
+                <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
+                    <h3 style="margin-top: auto; margin-bottom: auto;">${data["title"]}</h3>
+                    <div style="width: 80%;">
+                        ${this.GenerateTagsHtml(data["tags"])}
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; margin-bottom: 5px; width: 30%;">
+                <div style="margin-top: auto; margin-right: 10px;">
+                    <div class="border rounded bg-success" style="padding: 3px;">${data["salaryMin"]} ${data["salaryMax"]}</div>
+                </div>
+                <div style="margin-top: auto; margin-right: 10px;">
+                    <div class="border rounded bg-info" style="padding: 3px;">Posted ${data["creationTime"].split('T')[0]}</div>
+                </div>
+            </div>
+        </div>
+    </a>`;
+        console.log(data);
+        var html = temp;
+        return html
+    }
+    function GenerateTagsHtml(tags){
+        var tags = tags.split(',');
+        var html = "";
+        for(var i = 0; i < tags.length; i++){
+            html += `<span class=\"badge badge-pill badge-info\">${tags[i]}</span>`;
+        }
+        return html;
+    }
+</script>
+
+<div style="width: 100%; height: 10%; margin-top: 5%;">
+    <center>
+        <input type="text" id="searchBox" class="input-group-text" style="border-radius: 50px;" onkeydown="SearchKeyPress(event)">
+    </center>
+</div>
+<div class="container" id="PostsContainer" style="margin-top: 3%; width: 70%;">
+@{
+    if(Model != null)
+    {
+        foreach(Post post in Model){
+            <a asp-action="Read" asp-route-id="@post.Id">
+                <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
+                    <div id="left-side" style="display: flex; width: 70%;">
+                        <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">
+                        <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
+                            <h3 style="margin-top: auto; margin-bottom: auto;">@post.Title</h3>
+                            <div style="width: 80%;">
+                                @{
+                                    string[] tags = post.Tags.Split(',');
+                                    foreach(string tag in tags){
+                                        <span class="badge badge-pill badge-info">@tag</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; margin-bottom: 5px; width: 30%;">
+                        <div style="margin-top: auto; margin-right: 10px;">
+                            <div class="border rounded bg-success" style="padding: 3px;">@post.SalaryMin - @post.SalaryMax</div>
+                        </div>
+                        <div style="margin-top: auto; margin-right: 10px;">
+                            <div class="border rounded bg-info" style="padding: 3px;">Posted @post.CreationTime.Date.ToString("dd/MM/yy")</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        }
+    }
+}
+</div>

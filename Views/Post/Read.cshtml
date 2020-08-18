@@ -1,5 +1,21 @@
+@using System;
 @model Post
-
-<p>
-    @Model.Title
-</p>
+@{
+    string avatarBase64 = System.Convert.ToBase64String(Model.Avatar);
+}
+<div class="container border border-info rounded" style="padding: 15px; margin-top: 2%;">
+    <div style="display: flex; align-content: center; text-align: center;">
+        <img src="data:image/png;base64,@avatarBase64" width="150px" height="150px" style="padding: 10px;">
+        <h2 style="display: flex;align-items: center; margin-left: 2%;">@Model.Title</h2>
+    </div>
+    @{
+        string[] tags = Model.Tags.Split(',');
+        foreach(string tag in tags){
+            <small class="badge badge-pill badge-info">@tag</small>
+        }
+    }
+    <br>
+    <div style="margin-top: 2%; padding: 10px; font-size: large;">
+        @Model.Description
+    </div>
+</div>

@@ -6,4 +6,5 @@ namespace PostWork.ControllersLogic
     public class UsernameIsTakenException : Exception { }
     public class EmailIsTakenException : Exception { }
     public class UserDoesNotExistException : Exception { }
+    public class PostCreationException : Exception { }
 }

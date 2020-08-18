@@ -6,6 +6,7 @@ using PostWork.Models;
 using Microsoft.Extensions.Primitives;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace PostWork.ControllersLogic
 {
@@ -14,7 +15,7 @@ namespace PostWork.ControllersLogic
         private readonly PostContext postContext;
         public PostLogic(PostContext postContext) => this.postContext = postContext;
 
-        public async Task CreatePost(IFormCollection data, string creatorId)
+        public async Task<Post> CreatePost(IFormCollection data, string creatorId)
         {
             if (this.ValidateData(data))
             {
@@ -29,20 +30,49 @@ namespace PostWork.ControllersLogic
                         Tags = data["tags"].ToString(),
                         Avatar = ms.ToArray(),
                     };
-                    await postContext.Posts.AddAsync(newPost);
+                    if (int.TryParse(data["salaryMin"], out int salaryMin) && int.TryParse(data["salaryMax"], out int salaryMax))
+                    {
+                        newPost.SalaryMin = salaryMin;
+                        newPost.SalaryMax = salaryMax;
+                    }
+                    var resoult = await postContext.Posts.AddAsync(newPost);
                     await postContext.SaveChangesAsync();
+                    return resoult.Entity;
                 }
             }
             else
             {
-                Console.WriteLine("Post validation failed");
-                //Throw ex
+                throw new PostCreationException();
             }
         }
 
-        public async Task<Post> ReadPost(int id)
+        public Post ReadPost(int id)
         {
             return this.postContext.Posts.FirstOrDefault(x => x.Id == id);
+        }
+
+        public async Task<IEnumerable<Post>> FindByTags(string[] tags)
+        {
+            List<Task> tasks = new List<Task>();
+            HashSet<Post> uniquePosts = new HashSet<Post>();
+            foreach (string tag in tags)
+            {
+                Task task = Task.Run(() =>
+                {
+                    Post[] posts;
+                    lock (this.postContext)
+                    {
+                        posts = this.postContext.Posts.Where(x => x.Tags.Contains(tag)).ToArray();
+                    }
+                    foreach (Post post in posts)
+                    {
+                        uniquePosts.Add(post);
+                    }
+                });
+                tasks.Add(task);
+            }
+            Task.WaitAll(tasks.ToArray());
+            return uniquePosts;
         }
 
         //Validates post data
@@ -76,7 +106,8 @@ namespace PostWork.ControllersLogic
 
     public interface IPostLogic
     {
-        Task CreatePost(IFormCollection data, string creatorId);
-        Task<Post> ReadPost(int id);
+        Task<Post> CreatePost(IFormCollection data, string creatorId);
+        Post ReadPost(int id);
+        Task<IEnumerable<Post>> FindByTags(string[] tags);
     }
 }

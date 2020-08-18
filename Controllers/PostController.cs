@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using PostWork.ControllersLogic;
 using PostWork.Models;
 using Microsoft.AspNetCore.Identity;
+using PostWork.Data;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace PostWork.Controllers
 {
@@ -11,15 +14,23 @@ namespace PostWork.Controllers
     {
         private readonly IPostLogic postLogic;
         private readonly UserManager<IdentityUser> userManager;
-        public PostController(IPostLogic postLogic, UserManager<IdentityUser> userManager)
+        private readonly PostContext postContext;
+        public PostController(IPostLogic postLogic, UserManager<IdentityUser> userManager, PostContext postContext)
         {
             this.postLogic = postLogic;
             this.userManager = userManager;
+            this.postContext = postContext;
         }
 
         public IActionResult Index()
         {
-            return View();
+            Post[] elements = this.postContext.Posts.Where(x => x.Tags.Contains("linux")).ToArray();
+            return View(elements);
+        }
+
+        public async Task<IEnumerable<Post>> Find(string query)
+        {
+            return await this.postLogic.FindByTags(query.Split(','));
         }
 
         public IActionResult Create()
@@ -27,13 +38,13 @@ namespace PostWork.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Read(int? id)
+        public IActionResult Read(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            Post post = await this.postLogic.ReadPost((int)id);
+            Post post = this.postLogic.ReadPost((int)id);
             if (post == default)
             {
                 return NotFound();
@@ -54,8 +65,8 @@ namespace PostWork.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(IFormCollection data)
         {
-            await this.postLogic.CreatePost(data, this.userManager.GetUserId(User));
-            return Ok();
+            Post post = await this.postLogic.CreatePost(data, this.userManager.GetUserId(User));
+            return Created($"/Post/Read/{post.Id}", post);
         }
     }
 }

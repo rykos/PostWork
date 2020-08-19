@@ -17,7 +17,7 @@ namespace PostWork.ControllersLogic
 
         public async Task<Post> CreatePost(IFormCollection data, string creatorId)
         {
-            if (this.ValidateData(data))
+            if (this.ValidateData(data, new string[] { "title", "description", "tags" }, 1))
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
@@ -134,10 +134,44 @@ namespace PostWork.ControllersLogic
             return this.postContext.Posts.FirstOrDefault(x => x.Id == id);
         }
 
-        //Validates post data
-        private bool ValidateData(IFormCollection data)
+        public void MakeSubmission(int postId, IFormCollection data)
         {
-            string[] requiredFields = new string[] { "title", "description", "tags" };
+            if (this.ValidateData(data, new string[] { "name", "email" }, 0))//Form data is valid
+            {
+                if (this.postContext.Posts.FirstOrDefault(x => x.Id == postId) != null)//Post exists
+                {
+                    Submission submission = new Submission()
+                    {
+                        PostId = postId,
+                        Name = data["name"].ToString(),
+                        Email = data["email"].ToString(),
+                        Message = data["message"].ToString()
+                    };
+                    if (data.Files.Count() > 0)
+                    {
+                        IFormFile file = data.Files[0];
+                        if (file.Length < 15000)
+                        {
+                            using (MemoryStream ms = new MemoryStream())
+                            {
+                                file.CopyTo(ms);
+                                submission.Cv = ms.ToArray();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        submission.Cv = new byte[0];
+                    }
+                    this.postContext.Submissions.Add(submission);
+                    this.postContext.SaveChanges();
+                }
+            }
+        }
+
+        //Validates post data
+        private bool ValidateData(IFormCollection data, string[] requiredFields, int filesRequired)
+        {
             foreach (string field in requiredFields)
             {
                 if (this.ValidateField(data[field]) == false)//Field is invalid
@@ -145,7 +179,7 @@ namespace PostWork.ControllersLogic
                     return false;
                 }
             }
-            if (data.Files.Count < 1)
+            if (data.Files.Count < filesRequired)
             {
                 return false;
             }
@@ -171,5 +205,6 @@ namespace PostWork.ControllersLogic
         Post[] FindByCreatorId(string id);
         Post FindById(int id);
         void EditPost(IFormCollection data);
+        void MakeSubmission(int postId, IFormCollection data);
     }
 }

@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PostWork.Data;
 
 namespace PostWork.Migrations.Post
 {
     [DbContext(typeof(PostContext))]
-    partial class PostContextModelSnapshot : ModelSnapshot
+    [Migration("20200819022026_Post")]
+    partial class Post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,38 +66,17 @@ namespace PostWork.Migrations.Post
                         .HasColumnType("int");
 
                     b.Property<byte[]>("Cv")
-                        .HasColumnType("MEDIUMBLOB");
-
-                    b.Property<DateTime>("Date")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text");
+                        .HasColumnType("blob");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("text");
 
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
-
                     b.ToTable("Submissions");
-                });
-
-            modelBuilder.Entity("PostWork.Models.Submission", b =>
-                {
-                    b.HasOne("PostWork.Models.Post", "Post")
-                        .WithMany("Submissions")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

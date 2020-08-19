@@ -24,14 +24,28 @@ namespace PostWork.Controllers
             this.postContext = postContext;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(IEnumerable<Post> posts = null)
         {
-            return View(this.postContext.Posts.ToArray());
+            if (posts.Count() == 0)
+            {
+                return View(this.postContext.Posts.ToArray());
+            }
+            else
+            {
+                return View(posts);
+            }
         }
 
+        [HttpGet]
         public async Task<IEnumerable<Post>> Find(string query)
         {
             return await this.postLogic.FindByTags(query.Split(','));
+        }
+
+        public async Task<IActionResult> FindWithView(string query)
+        {
+            var posts = await this.postLogic.FindByTags(query.Split(','));
+            return View("/Views/Post/Index.cshtml", posts);
         }
 
         public IActionResult Create()
@@ -89,6 +103,13 @@ namespace PostWork.Controllers
                 return RedirectToAction("Read", new { id = post.Id });
             }
             return Forbid();
+        }
+
+        [HttpPost]
+        public IActionResult Submit(int id, IFormCollection data)//PostId,formData
+        {
+            this.postLogic.MakeSubmission(id, data);
+            return RedirectToAction("Index");
         }
     }
 }

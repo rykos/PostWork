@@ -3,19 +3,80 @@
 @{
     string avatarBase64 = System.Convert.ToBase64String(Model.Avatar);
 }
-<div class="container border border-info rounded" style="padding: 15px; margin-top: 2%;">
-    <div style="display: flex; align-content: center; text-align: center;">
-        <img src="data:image/png;base64,@avatarBase64" width="150px" height="150px" style="padding: 10px;">
-        <h2 style="display: flex;align-items: center; margin-left: 2%;">@Model.Title</h2>
+
+<style>
+    body{
+        background-color: #fffdf7;
+    }
+</style>
+<div class="container border border-info rounded" style="padding: 15px; margin-top: 2%; background-color: #EEE;">
+    <div style="display: flex; align-content: center; text-align: center; justify-content: space-between;">
+        <div style="display: flex; width: 60%;">
+            <img src="data:image/png;base64,@avatarBase64" width="150px" height="150px" style="padding: 10px;">
+            <div style="display: flex; align-items: center; width: 80%;">
+                <h2 style="margin-left: 2%;">@Model.Title</h2>
+            </div>
+        </div>
+        <div>
+            <div style="display: flex; margin-bottom: 5px; width: 30%;">
+                <div style="margin-top: auto; margin-right: 10px;">
+                    <div class="border rounded bg-success" style="padding: 3px; white-space: nowrap;">@Model.SalaryMin - @Model.SalaryMax</div>
+                </div>
+                <div style="margin-top: auto; margin-right: 10px;">
+                    <div class="border rounded bg-info" style="padding: 3px;">Posted @Model.CreationTime.Date.ToString("dd/MM/yy")</div>
+                </div>
+            </div>
+        </div>
     </div>
     @{
         string[] tags = Model.Tags.Split(',');
         foreach(string tag in tags){
-            <small class="badge badge-pill badge-info">@tag</small>
+            <a href="/Posts/FindWithView?query=@tag"><small class="badge badge-pill badge-info">@tag</small></a>
         }
     }
     <br>
     <div style="margin-top: 2%; padding: 10px; font-size: large;">
         @Model.Description
     </div>
+</div>
+<div class="container border border-info rounded" style="padding: 15px; margin-top: 2%; background-color: #EEE;">
+    <form method="POST" asp-action="Submit" asp-route-id="@Model.Id">
+        <div class="form-group" style="width: 50%; margin-left: auto; margin-right: auto;">
+            <div class="row">
+                <div class="col-3">
+                    <label>Name</label>
+                </div>
+                <div class="col-9">
+                    <input type="text" class="form-control" name="name">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <label>Email</label>
+                </div>
+                <div class="col-9">
+                    <input type="email" class="form-control" name="email">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <label>CV</label>
+                </div>
+                <div class="col-9">
+                    <input type="file" class="form-control-file" name="cv">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <label>Message</label>
+                </div>
+                <div class="col-9">
+                    <textarea type="text" class="form-control" name="message"></textarea>
+                </div>
+            </div>
+            <center>
+                <button type="submit" class="btn btn-primary mb-2" style="width: 60%;">Submit</button>
+            </center>
+        </div>
+    </form>
 </div>

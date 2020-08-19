@@ -26,35 +26,36 @@
     }
     function GetResoults(){
         var html = "";
-        $.post(`/Posts/find?query=${$("#searchBox").val().replace("#","%23")}`).done(function(data) {
+        $.get(`/Posts/find?query=${$("#searchBox").val().replace("#","%23")}`).done(function(data) {
             for(var i = 0; i < data.length; i++){
                 html += GenerateElementHtml(data[i]);
             }
             var x = $("#PostsContainer").html(html);
+            
         });
     }
     function GenerateElementHtml(data){
-          var temp =`<a href="Post/Read/${data["id"]}">
-        <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
-            <div id="left-side" style="display: flex; width: 70%;">
-                <img src="data:image/png;base64,${data["avatar"]}" style="width: 100px; height: 100px;">
-                <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
-                    <h3 style="margin-top: auto; margin-bottom: auto;">${data["title"]}</h3>
-                    <div style="width: 80%;">
-                        ${this.GenerateTagsHtml(data["tags"])}
+          var temp =`<a href="/Post/Read/${data["id"]}"
+                <div class="row border rounded" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
+                    <div id="left-side" style="display: flex; width: 70%;">
+                        <img src="data:image/png;base64,${data["avatar"]}" style="width: 100px; height: 100px;">
+                        <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
+                            <h3 style="margin-top: auto; margin-bottom: auto;">${data["title"]}</h3>
+                            <div style="width: 80%;">
+                                ${this.GenerateTagsHtml(data["tags"])}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; margin-bottom: 5px; width: 30%;">
+                        <div style="margin-top: auto; margin-right: 10px;">
+                            <div class="border rounded bg-success" style="padding: 3px;">${data["salaryMin"]} - ${data["salaryMax"]}</div>
+                        </div>
+                        <div style="margin-top: auto; margin-right: 10px;">
+                            <div class="border rounded bg-info" style="padding: 3px;">Posted ${data["creationTime"]}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div style="display: flex; margin-bottom: 5px; width: 30%;">
-                <div style="margin-top: auto; margin-right: 10px;">
-                    <div class="border rounded bg-success" style="padding: 3px;">${data["salaryMin"]} ${data["salaryMax"]}</div>
-                </div>
-                <div style="margin-top: auto; margin-right: 10px;">
-                    <div class="border rounded bg-info" style="padding: 3px;">Posted ${data["creationTime"].split('T')[0]}</div>
-                </div>
-            </div>
-        </div>
-    </a>`;
+            </a>`;
         console.log(data);
         var html = temp;
         return html
@@ -63,15 +64,18 @@
         var tags = tags.split(',');
         var html = "";
         for(var i = 0; i < tags.length; i++){
-            html += `<span class=\"badge badge-pill badge-info\">${tags[i]}</span>`;
+            html += `<span href="/Posts/FindWithView?query=${tags[i]}" class="badge badge-pill badge-info" style="margin-right:5px;">${tags[i]}</span>`;
         }
         return html;
     }
 </script>
 
-<div style="width: 100%; height: 10%; margin-top: 5%;">
+<div style="width: 100%; height: 10%; margin-top: 2%;">
     <center>
-        <input type="text" id="searchBox" class="input-group-text" style="border-radius: 50px;" onkeydown="SearchKeyPress(event)">
+        <div>
+            <i><h4>Tags:</h4></i>
+            <input type="text" id="searchBox" class="input-group-text" style="border-radius: 50px;" onkeydown="SearchKeyPress(event)">
+        </div>
     </center>
 </div>
 <div class="container" id="PostsContainer" style="margin-top: 3%; width: 70%;">
@@ -80,7 +84,7 @@
     {
         foreach(Post post in Model){
             <a asp-action="Read" asp-route-id="@post.Id">
-                <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
+                <div class="row border rounded" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
                     <div id="left-side" style="display: flex; width: 70%;">
                         <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">
                         <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
@@ -89,7 +93,7 @@
                                 @{
                                     string[] tags = post.Tags.Split(',');
                                     foreach(string tag in tags){
-                                        <span class="badge badge-pill badge-info">@tag</span>
+                                        <span href="/Posts/FindWithView?query=@tag" class="badge badge-pill badge-info">@tag</span>
                                     }
                                 }
                             </div>

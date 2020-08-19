@@ -83,7 +83,7 @@
                                 @{
                                     string[] tags = post.Tags.Split(',');
                                     foreach(string tag in tags){
-                                        <span class="badge badge-pill badge-info">@tag</span>
+                                        <span href="/Posts/FindWithView?query=@tag"  class="badge badge-pill badge-info">@tag</span>
                                     }
                                 }
                             </div>

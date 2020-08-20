@@ -18,5 +18,18 @@ namespace PostWork.Models
 
         public int PostId { get; set; }
         public Post Post { get; set; }
+        [Column(TypeName = "varchar(250)")]
+
+        public string UserId { get; set; }
+        public SubmissionState State { get; set; }
+    }
+
+    public enum SubmissionState
+    {
+        None,
+        Sent,
+        Reviewing,
+        Rejected,
+        Accepted,
     }
 }

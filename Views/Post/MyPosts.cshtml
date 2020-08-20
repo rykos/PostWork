@@ -73,32 +73,32 @@
     if(Model != null)
     {
         foreach(Post post in Model){
-            <a asp-action="Edit" asp-route-id="@post.Id">
-                <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
-                    <div id="left-side" style="display: flex; width: 70%;">
-                        <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">
-                        <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
-                            <h3 style="margin-top: auto; margin-bottom: auto;">@post.Title</h3>
-                            <div style="width: 80%;">
-                                @{
-                                    string[] tags = post.Tags.Split(',');
-                                    foreach(string tag in tags){
-                                        <span href="/Posts/FindWithView?query=@tag"  class="badge badge-pill badge-info">@tag</span>
-                                    }
+            <div class="row border" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
+                <div id="left-side" style="display: flex; width: 70%;">
+                    <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">
+                    <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
+                        <h3 style="margin-top: auto; margin-bottom: auto;">@post.Title</h3>
+                        <div style="width: 80%;">
+                            @{
+                                string[] tags = post.Tags.Split(',');
+                                foreach(string tag in tags){
+                                    <span href="/Posts/FindWithView?query=@tag" class="badge badge-pill badge-info">@tag</span>
                                 }
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display: flex; margin-bottom: 5px; width: 30%;">
-                        <div style="margin-top: auto; margin-right: 10px;">
-                            <div class="border rounded bg-success" style="padding: 3px;">@post.SalaryMin - @post.SalaryMax</div>
-                        </div>
-                        <div style="margin-top: auto; margin-right: 10px;">
-                            <div class="border rounded bg-info" style="padding: 3px;">Posted @post.CreationTime.Date.ToString("dd/MM/yy")</div>
+                            }
                         </div>
                     </div>
                 </div>
-            </a>
+                <div style="display: flex; margin-bottom: 5px; width: 30%;">
+                    <div style="margin-top: auto; margin-right: 10px;">
+                        <div class="border rounded bg-success" style="padding: 3px;">@post.SalaryMin - @post.SalaryMax</div>
+                    </div>
+                    <div style="margin-top: auto; margin-right: 10px;">
+                        <div class="border rounded bg-info" style="padding: 3px;">Posted @post.CreationTime.Date.ToString("dd/MM/yy")</div>
+                    </div>
+                </div>
+                <a asp-action="Edit" asp-route-id="@post.Id" style="width: 50%;"><button class="btn btn-warning" style="width: 100%;">Edit</button></a>
+                <a asp-action="Submissions" asp-route-id="@post.Id" style="width: 50%;"><button class="btn btn-success" style="width: 100%;">Submissions</button></a>
+            </div>
         }
     }
 }

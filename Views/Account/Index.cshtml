@@ -1,6 +1,60 @@
-@using Microsoft.AspNetCore.Identity
-@model IdentityUser
-index
-<p>Viewing @Model.UserName account details</p>
-<a asp-action="My" asp-controller="Posts">My Posts</a>
-<a asp-action="Create" asp-controller="Post" class="navbar-text">Create Post</a>
+@model (Submission[], Dictionary<int, Post>)
+<style>
+    a {
+        color: inherit; /* blue colors for links too */
+        text-decoration: inherit; /* no underline */
+    }
+    a:hover{
+        color: inherit; /* blue colors for links too */
+        text-decoration: inherit; /* no underline */
+    }
+</style>
+<div class="row" style="margin-top: 5%;">
+    <div class="col-3">
+        <div class="row">
+            <div class="col">
+                <a asp-action="My" asp-controller="Posts" style="width: 100%;"><button style="width: 100%;" class="btn btn-info">My Posts</button></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a asp-action="Create" asp-controller="Post" class="navbar-text" style="width: 100%;"><button style="width: 100%;" class="btn btn-info">Create New Post</button></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-9">
+            @foreach (var submission in Model.Item1)
+            {
+                var post = Model.Item2[submission.PostId];
+                <a asp-action="Read" asp-route-id="@post.Id">
+                <div class="row border rounded" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
+                    <div id="left-side" style="display: flex; width: 70%;">
+                        <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">
+                        <div style="height: 100%; margin-left: 20px; display: flex; flex-direction: column; align-content: center; width: 70%;">
+                            <h3 style="margin-top: auto; margin-bottom: auto;">@post.Title</h3>
+                            <div style="width: 80%;">
+                                @{
+                                    string[] tags = post.Tags.Split(',');
+                                    foreach(string tag in tags){
+                                        <span href="/Posts/FindWithView?query=@tag" class="badge badge-pill badge-info">@tag</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; margin-bottom: 5px; width: 30%;">
+                        <div style="margin-top: auto; margin-right: 10px;">
+                            <div class="border rounded bg-success" style="padding: 3px;">@post.SalaryMin - @post.SalaryMax</div>
+                        </div>
+                        <div style="margin-top: auto; margin-right: 10px;">
+                            <div class="border rounded bg-info" style="padding: 3px;">Posted @post.CreationTime.Date.ToString("dd/MM/yy")</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: auto; margin-right: 10px;">
+                        <div class="border rounded bg-info" style="padding: 3px;">@submission.State</div>
+                    </div>
+                </div>
+                </a>
+            }
+    </div>
+</div>

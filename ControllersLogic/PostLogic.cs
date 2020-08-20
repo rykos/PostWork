@@ -81,7 +81,7 @@ namespace PostWork.ControllersLogic
             return this.postContext.Posts.FirstOrDefault(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<Post>> FindByTags(string[] tags)
+        public async Task<IEnumerable<Post>> GetPostsByTags(string[] tags)
         {
             List<Task> tasks = new List<Task>();
             HashSet<Post> uniquePosts = new HashSet<Post>();
@@ -124,17 +124,17 @@ namespace PostWork.ControllersLogic
             return uniquePosts;
         }
 
-        public Post[] FindByCreatorId(string id)
+        public Post[] GetPostsByCreatorId(string id)
         {
             return this.postContext.Posts.Where(x => x.CreatorId == id).ToArray();
         }
 
-        public Post FindById(int id)
+        public Post GetPostById(int id)
         {
             return this.postContext.Posts.FirstOrDefault(x => x.Id == id);
         }
 
-        public void MakeSubmission(int postId, IFormCollection data)
+        public void MakeSubmission(int postId, IFormCollection data, string userId)
         {
             if (this.ValidateData(data, new string[] { "name", "email" }, 0))//Form data is valid
             {
@@ -145,12 +145,14 @@ namespace PostWork.ControllersLogic
                         PostId = postId,
                         Name = data["name"].ToString(),
                         Email = data["email"].ToString(),
-                        Message = data["message"].ToString()
+                        Message = data["message"].ToString(),
+                        UserId = userId,
+                        State = SubmissionState.Sent
                     };
                     if (data.Files.Count() > 0)
                     {
                         IFormFile file = data.Files[0];
-                        if (file.Length < 15000)
+                        if (file.Length < 15000000)//Smaller than 15MB
                         {
                             using (MemoryStream ms = new MemoryStream())
                             {
@@ -161,12 +163,22 @@ namespace PostWork.ControllersLogic
                     }
                     else
                     {
-                        submission.Cv = new byte[0];
+                        submission.Cv = new byte[0];//ef disallows null mediumblob
                     }
                     this.postContext.Submissions.Add(submission);
                     this.postContext.SaveChanges();
                 }
             }
+        }
+
+        public Submission[] GetSubmissionsForPostId(int postId)
+        {
+            return this.postContext.Submissions.Where(x => x.PostId == postId).OrderBy(x => x.Date).ToArray();
+        }
+
+        public Submission[] GetUserSubmissions(string userId)
+        {
+            return this.postContext.Submissions.Where(x => x.UserId == userId).ToArray();
         }
 
         //Validates post data
@@ -201,10 +213,12 @@ namespace PostWork.ControllersLogic
     {
         Task<Post> CreatePost(IFormCollection data, string creatorId);
         Post ReadPost(int id);
-        Task<IEnumerable<Post>> FindByTags(string[] tags);
-        Post[] FindByCreatorId(string id);
-        Post FindById(int id);
+        Task<IEnumerable<Post>> GetPostsByTags(string[] tags);
+        Post[] GetPostsByCreatorId(string id);
+        Post GetPostById(int id);
         void EditPost(IFormCollection data);
-        void MakeSubmission(int postId, IFormCollection data);
+        void MakeSubmission(int postId, IFormCollection data, string userId);
+        Submission[] GetSubmissionsForPostId(int postId);
+        Submission[] GetUserSubmissions(string userId);
     }
 }

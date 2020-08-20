@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PostWork.ControllersLogic;
+using PostWork.Models;
 
 namespace PostWork.Controllers
 {
@@ -12,10 +14,12 @@ namespace PostWork.Controllers
     {
         private readonly IAccountLogic accountLogic;
         private readonly UserManager<IdentityUser> userManager;
-        public AccountController(IAccountLogic accountLogic, UserManager<IdentityUser> userManager)
+        private readonly IPostLogic postLogic;
+        public AccountController(IAccountLogic accountLogic, UserManager<IdentityUser> userManager, IPostLogic postLogic)
         {
             this.accountLogic = accountLogic;
             this.userManager = userManager;
+            this.postLogic = postLogic;
         }
 
         //Default
@@ -25,7 +29,17 @@ namespace PostWork.Controllers
             {
                 return RedirectToAction("Login");
             }
-            return View(await this.userManager.GetUserAsync(User));
+            Submission[] submissions = this.postLogic.GetUserSubmissions(this.userManager.GetUserId(User));
+            Dictionary<int, Post> posts = new Dictionary<int, Post>();
+            HashSet<int> postIds = new HashSet<int>();//Unique post id's
+            foreach (var submission in submissions)
+            {
+                if (postIds.Add(submission.PostId))//Unique id
+                {
+                    posts.Add(submission.PostId, this.postLogic.GetPostById(submission.PostId));
+                }
+            }
+            return View((submissions, posts));
         }
 
         //Login Page

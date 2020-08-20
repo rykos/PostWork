@@ -39,12 +39,12 @@ namespace PostWork.Controllers
         [HttpGet]
         public async Task<IEnumerable<Post>> Find(string query)
         {
-            return await this.postLogic.FindByTags(query.Split(','));
+            return await this.postLogic.GetPostsByTags(query.Split(','));
         }
 
         public async Task<IActionResult> FindWithView(string query)
         {
-            var posts = await this.postLogic.FindByTags(query.Split(','));
+            var posts = await this.postLogic.GetPostsByTags(query.Split(','));
             return View("/Views/Post/Index.cshtml", posts);
         }
 
@@ -56,7 +56,7 @@ namespace PostWork.Controllers
         [Route("/Posts/My")]
         public IActionResult MyPosts()
         {
-            return View(postLogic.FindByCreatorId(this.userManager.GetUserId(User)));
+            return View(postLogic.GetPostsByCreatorId(this.userManager.GetUserId(User)));
         }
 
         public IActionResult Read(int? id)
@@ -75,7 +75,7 @@ namespace PostWork.Controllers
 
         public IActionResult Edit(int id)
         {
-            Post post = this.postLogic.FindById(id);
+            Post post = this.postLogic.GetPostById(id);
             if (post.CreatorId == this.userManager.GetUserId(User))//User is the creator
             {
                 return View(post);
@@ -96,7 +96,7 @@ namespace PostWork.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(IFormCollection data)
         {
-            Post post = this.postLogic.FindById((int.Parse(data["id"])));
+            Post post = this.postLogic.GetPostById((int.Parse(data["id"])));
             if (post.CreatorId == this.userManager.GetUserId(User))//User is the creator
             {
                 this.postLogic.EditPost(data);
@@ -108,8 +108,17 @@ namespace PostWork.Controllers
         [HttpPost]
         public IActionResult Submit(int id, IFormCollection data)//PostId,formData
         {
-            this.postLogic.MakeSubmission(id, data);
+            this.postLogic.MakeSubmission(id, data, this.userManager.GetUserId(User));
             return RedirectToAction("Index");
+        }
+
+        public IActionResult Submissions(int id)
+        {
+            if (this.postLogic.GetPostById(id).CreatorId != this.userManager.GetUserId(User))
+            {
+                return Forbid();
+            }
+            return View(this.postLogic.GetSubmissionsForPostId(id));
         }
     }
 }

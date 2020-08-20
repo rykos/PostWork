@@ -81,7 +81,7 @@
 <div class="container" id="PostsContainer" style="margin-top: 3%; width: 70%;">
 @{
     if(Model != null)
-    {
+    {   
         foreach(Post post in Model){
             <a asp-action="Read" asp-route-id="@post.Id">
                 <div class="row border rounded" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">

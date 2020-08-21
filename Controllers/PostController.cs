@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using PostWork.Data;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace PostWork.Controllers
 {
@@ -119,6 +120,19 @@ namespace PostWork.Controllers
                 return Forbid();
             }
             return View(this.postLogic.GetSubmissionsForPostId(id));
+        }
+
+        public FileResult DownloadCV(int submissionID)
+        {
+            Submission submission = this.postLogic.GetSubmissionById(submissionID);
+            if (submission != default)
+            {
+                return File(submission.Cv, "application/octet-stream", submission.CvName);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

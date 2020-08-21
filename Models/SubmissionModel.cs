@@ -12,6 +12,8 @@ namespace PostWork.Models
         public string Email { get; set; }
         [Column(TypeName = "MEDIUMBLOB")]
         public byte[] Cv { get; set; }
+        [Column(TypeName = "varchar(100)")]
+        public string CvName { get; set; }
         public string Message { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Date { get; set; } = DateTime.Now;

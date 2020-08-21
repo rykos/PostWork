@@ -151,14 +151,27 @@ namespace PostWork.ControllersLogic
                     };
                     if (data.Files.Count() > 0)
                     {
-                        IFormFile file = data.Files[0];
-                        if (file.Length < 15000000)//Smaller than 15MB
+                        try
                         {
-                            using (MemoryStream ms = new MemoryStream())
+                            IFormFile file = data.Files[0];
+                            string extension = Path.GetExtension(file.FileName);
+                            if (extension != ".pdf")
                             {
-                                file.CopyTo(ms);
-                                submission.Cv = ms.ToArray();
+                                throw new Exception();
                             }
+                            if (file.Length < 15000000)//Smaller than 15MB
+                            {
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    file.CopyTo(ms);
+                                    submission.Cv = ms.ToArray();
+                                }
+                            }
+                            submission.CvName = file.FileName;
+                        }
+                        catch
+                        {
+                            submission.Cv = new byte[0];
                         }
                     }
                     else
@@ -174,6 +187,11 @@ namespace PostWork.ControllersLogic
         public Submission[] GetSubmissionsForPostId(int postId)
         {
             return this.postContext.Submissions.Where(x => x.PostId == postId).OrderBy(x => x.Date).ToArray();
+        }
+
+        public Submission GetSubmissionById(int submissionId)
+        {
+            return this.postContext.Submissions.FirstOrDefault(x => x.Id == submissionId);
         }
 
         public Submission[] GetUserSubmissions(string userId)
@@ -220,5 +238,6 @@ namespace PostWork.ControllersLogic
         void MakeSubmission(int postId, IFormCollection data, string userId);
         Submission[] GetSubmissionsForPostId(int postId);
         Submission[] GetUserSubmissions(string userId);
+        Submission GetSubmissionById(int submissionId);
     }
 }

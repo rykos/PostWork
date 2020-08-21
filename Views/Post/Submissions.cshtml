@@ -7,8 +7,27 @@
     }
     else
     {
-        foreach(Submission submission in Model){
-            <div>Submission: @submission.Name</div>
+        foreach(Submission submission in Model)
+        {
+            <div class="container rounded border" style="background-color: #fafafa;">
+                <div class="row">
+                    <div class="col-3">
+                        <h4>@submission.Name</h4>
+                        <small>Email: @submission.Email</small>
+                    </div>
+                    <div class="col-9">
+                        @submission.Message
+                    </div>
+                </div>
+                <div class="row" style="display: flex; justify-content: space-between;">
+                    <a asp-action="DownloadCV" asp-controller="Post" asp-route-submissionID="@submission.Id" download><button class="btn btn-success">Download CV</button></a>
+                    <div>
+                        <button class="btn btn-success">Accept</button>
+                        <button class="btn btn-info">Review</button>
+                        <button class="btn btn-danger">Deny</button>
+                    </div>
+                </div>
+            </div>
         }
     }
 }

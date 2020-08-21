@@ -23,10 +23,11 @@
         </div>
     </div>
     <div class="col-9">
+        MySubmissions:
             @foreach (var submission in Model.Item1)
             {
                 var post = Model.Item2[submission.PostId];
-                <a asp-action="Read" asp-route-id="@post.Id">
+                <a asp-action="Read" asp-controller="Post" asp-route-id="@submission.PostId">
                 <div class="row border rounded" style="display: flex; justify-content: space-between; margin-bottom: 3%; flex-direction: row;">
                     <div id="left-side" style="display: flex; width: 70%;">
                         <img src="data:image/png;base64,@System.Convert.ToBase64String(@post.Avatar)" style="width: 100px; height: 100px;">

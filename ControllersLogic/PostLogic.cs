@@ -199,6 +199,25 @@ namespace PostWork.ControllersLogic
             return this.postContext.Submissions.Where(x => x.UserId == userId).ToArray();
         }
 
+        public void ModifySubmission(Submission submission, Action<Submission> action)
+        {
+            this.postContext.Submissions.Update(submission);
+            action.Invoke(submission);
+            this.postContext.SaveChanges();
+        }
+
+        public bool UserIsPostCreator(string userId, int postId)
+        {
+            if (this.GetPostById(postId).CreatorId == userId)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         //Validates post data
         private bool ValidateData(IFormCollection data, string[] requiredFields, int filesRequired)
         {
@@ -239,5 +258,7 @@ namespace PostWork.ControllersLogic
         Submission[] GetSubmissionsForPostId(int postId);
         Submission[] GetUserSubmissions(string userId);
         Submission GetSubmissionById(int submissionId);
+        void ModifySubmission(Submission submission, Action<Submission> action);
+        bool UserIsPostCreator(string userId, int postId);
     }
 }

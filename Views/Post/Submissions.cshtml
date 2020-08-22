@@ -1,5 +1,17 @@
 @model IEnumerable<Submission>
 
+<script>
+    function ChangeState(state, id){
+        var link = `/Submission/SetState?state=${state}&SubmissionId=${id}`;
+        var data = {
+            "stateString": state,
+            "SubmissionId": id
+        };
+        $.post(`/Submission/SetState`, data).done(function() {
+            $(`#submissionState_${id}`).text(state);
+        });
+    }
+</script>
 @{
     if(Model.Count() == 0)
     {
@@ -22,9 +34,10 @@
                 <div class="row" style="display: flex; justify-content: space-between;">
                     <a asp-action="DownloadCV" asp-controller="Post" asp-route-submissionID="@submission.Id" download><button class="btn btn-success">Download CV</button></a>
                     <div>
-                        <button class="btn btn-success">Accept</button>
-                        <button class="btn btn-info">Review</button>
-                        <button class="btn btn-danger">Deny</button>
+                        <div class="badge border" id="submissionState_@submission.Id">@submission.State</div>
+                        <button onclick="ChangeState('@SubmissionState.Accepted', @submission.Id);" class="btn btn-success">Accept</button>
+                        <button onclick="ChangeState('@SubmissionState.Reviewing', @submission.Id);" class="btn btn-info">Review</button>
+                        <button onclick="ChangeState('@SubmissionState.Rejected', @submission.Id);" class="btn btn-danger">Reject</button>
                     </div>
                 </div>
             </div>
